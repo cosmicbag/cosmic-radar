@@ -41,6 +41,18 @@ function formatLargeNumber(num: number): string {
 }
 
 export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) {
+  // Safety checks
+  const safeDexData = {
+    totalVolume24h: dexData?.totalVolume24h || 0,
+    change_1d: dexData?.change_1d || 0,
+    topProtocols: (dexData?.topProtocols || []).filter(p => p && p.name),
+  };
+
+  const safeTvlData = {
+    total: tvlData?.total || 0,
+    topProtocols: (tvlData?.topProtocols || []).filter(p => p && p.name),
+  };
+
   return (
     <div className="space-y-6">
       {/* DeFi Metrics Row */}
@@ -51,16 +63,16 @@ export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) 
             <Activity className="w-4 h-4" />
             <span>Total DEX Volume (24h)</span>
           </div>
-          <div className="text-2xl font-bold">{formatLargeNumber(dexData.totalVolume24h)}</div>
+          <div className="text-2xl font-bold">{formatLargeNumber(safeDexData.totalVolume24h)}</div>
           <div className={`flex items-center gap-1 text-sm mt-2 ${
-            dexData.change_1d >= 0 ? 'text-positive' : 'text-negative'
+            safeDexData.change_1d >= 0 ? 'text-positive' : 'text-negative'
           }`}>
-            {dexData.change_1d >= 0 ? (
+            {safeDexData.change_1d >= 0 ? (
               <TrendingUp className="w-4 h-4" />
             ) : (
               <TrendingDown className="w-4 h-4" />
             )}
-            <span>{Math.abs(dexData.change_1d).toFixed(2)}%</span>
+            <span>{Math.abs(safeDexData.change_1d).toFixed(2)}%</span>
           </div>
         </div>
 
@@ -70,7 +82,7 @@ export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) 
             <Lock className="w-4 h-4" />
             <span>Total Value Locked</span>
           </div>
-          <div className="text-2xl font-bold">{formatLargeNumber(tvlData.total)}</div>
+          <div className="text-2xl font-bold">{formatLargeNumber(safeTvlData.total)}</div>
           <div className="text-sm text-text-secondary mt-2">Across all protocols</div>
         </div>
 
@@ -80,7 +92,7 @@ export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) 
             <Zap className="w-4 h-4" />
             <span>Active Protocols</span>
           </div>
-          <div className="text-2xl font-bold">{tvlData.topProtocols.length}+</div>
+          <div className="text-2xl font-bold">{safeTvlData.topProtocols.length}+</div>
           <div className="text-sm text-text-secondary mt-2">Top DeFi protocols</div>
         </div>
       </div>
@@ -101,7 +113,7 @@ export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) 
               </tr>
             </thead>
             <tbody>
-              {dexData.topProtocols.length === 0 ? (
+              {safeDexData.topProtocols.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-text-secondary">
                     <div className="flex flex-col items-center gap-2">
@@ -112,7 +124,7 @@ export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) 
                   </td>
                 </tr>
               ) : (
-                dexData.topProtocols.map((protocol, index) => {
+                safeDexData.topProtocols.map((protocol, index) => {
                   const change = protocol.change_1d || 0;
                   const isPositive = change >= 0;
                   
@@ -190,7 +202,7 @@ export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) 
               </tr>
             </thead>
             <tbody>
-              {tvlData.topProtocols.length === 0 ? (
+              {safeTvlData.topProtocols.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-8 text-center text-text-secondary">
                     <div className="flex flex-col items-center gap-2">
@@ -201,7 +213,7 @@ export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) 
                   </td>
                 </tr>
               ) : (
-                tvlData.topProtocols.map((protocol, index) => {
+                safeTvlData.topProtocols.map((protocol, index) => {
                   const change = protocol.change_1d;
                   const isPositive = change >= 0;
                 
