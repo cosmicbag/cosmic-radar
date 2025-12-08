@@ -17,9 +17,9 @@ export default function FlowsSection({ compareData, onRefresh }: FlowsSectionPro
   if (!compareData || !compareData.tiers) {
     return (
       <div className="card">
-        <h2 className="text-2xl font-bold mb-4">Flows & Movers</h2>
+        <h2 className="text-2xl font-bold mb-4">Gainers & Losers</h2>
         <p className="text-sm text-text-secondary">
-          Flows data is not available yet. Try refreshing the snapshot or check back later.
+          Data is not available yet. Try refreshing the snapshot or check back later.
         </p>
         {onRefresh && (
           <button
@@ -44,7 +44,7 @@ export default function FlowsSection({ compareData, onRefresh }: FlowsSectionPro
     <div className="space-y-6">
       {/* Section Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Flows & Movers</h2>
+        <h2 className="text-2xl font-bold">Gainers & Losers</h2>
         {onRefresh && (
           <button
             onClick={onRefresh}
