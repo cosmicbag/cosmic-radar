@@ -98,7 +98,18 @@ export default async function Home() {
     
     // Then fetch global metrics, compare data, news, and DeFi data in parallel
     const [globalMetrics, compareData, newsData, defiData] = await Promise.all([
-      getGlobalMetrics(),
+      getGlobalMetrics().catch(err => {
+        console.warn('Global metrics failed, using fallback:', err);
+        return {
+          marketCap: 0,
+          volume24h: 0,
+          btcDominance: 0,
+          fearGreed: 50,
+          altcoinSeason: 50,
+          marketCapChange24h: 0,
+          volumeChange24h: 0,
+        };
+      }),
       getCompareData().catch(err => {
         console.warn('Compare data failed, using empty data:', err);
         return { topGainers: [], topLosers: [], tierMovements: { tier1to50: [], tier51to100: [], tier101to150: [], tier151to200: [] } };
