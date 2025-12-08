@@ -8,7 +8,10 @@ import { prisma } from '@/lib/prisma';
 import { fetchTop200Listings } from '@/lib/cmcClient';
 import { getTodayUTC } from '@/lib/date';
 
-export async function POST() {
+// Mark as dynamic
+export const dynamic = 'force-dynamic';
+
+async function createOrGetSnapshot() {
   try {
     const today = getTodayUTC();
 
@@ -67,4 +70,13 @@ export async function POST() {
       { status: 500 }
     );
   }
+}
+
+// Allow both GET and POST
+export async function GET() {
+  return createOrGetSnapshot();
+}
+
+export async function POST() {
+  return createOrGetSnapshot();
 }
