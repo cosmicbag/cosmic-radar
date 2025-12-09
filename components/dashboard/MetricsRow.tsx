@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { TrendingUp, TrendingDown, Activity, Bitcoin, Coins, Gauge, Repeat } from 'lucide-react';
+import { computePreviousFromChange, formatUsd } from '@/lib/utils';
 
 interface MetricsRowProps {
   marketCap: number;
@@ -100,6 +101,17 @@ export default function MetricsRow({
         </div>
         <div className="text-2xl font-bold">{formatLargeNumber(marketCap)}</div>
         {renderChangeArrow(marketCapChange24h)}
+        {(() => {
+          const prevMarketCap = computePreviousFromChange(marketCap, marketCapChange24h);
+          return prevMarketCap !== null && (
+            <p className="mt-1 text-xs text-text-secondary">
+              Prev day close:{' '}
+              <span className="font-medium text-slate-300">
+                {formatUsd(prevMarketCap)}
+              </span>
+            </p>
+          );
+        })()}
       </div>
 
       {/* 24h Volume */}
@@ -110,6 +122,17 @@ export default function MetricsRow({
         </div>
         <div className="text-2xl font-bold">{formatLargeNumber(volume24h)}</div>
         {renderChangeArrow(volumeChange24h)}
+        {(() => {
+          const prevVolume = computePreviousFromChange(volume24h, volumeChange24h);
+          return prevVolume !== null && (
+            <p className="mt-1 text-xs text-text-secondary">
+              Prev day volume:{' '}
+              <span className="font-medium text-slate-300">
+                {formatUsd(prevVolume)}
+              </span>
+            </p>
+          );
+        })()}
       </div>
 
       {/* BTC Dominance */}

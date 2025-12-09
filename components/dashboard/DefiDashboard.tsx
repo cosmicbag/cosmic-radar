@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { TrendingUp, TrendingDown, Activity, Lock, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { TrendingUp, TrendingDown, Activity, Lock, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface DexProtocol {
   name: string;
@@ -41,6 +41,8 @@ function formatLargeNumber(num: number): string {
 }
 
 export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) {
+  const [expandedProtocols, setExpandedProtocols] = useState(false);
+  
   // Safety checks
   const safeDexData = {
     totalVolume24h: dexData?.totalVolume24h || 0,
@@ -86,14 +88,51 @@ export default function DefiDashboard({ dexData, tvlData }: DefiDashboardProps) 
           <div className="text-sm text-text-secondary mt-2">Across all protocols</div>
         </div>
 
-        {/* Active Protocols */}
+        {/* Active Protocols - Top 10 by TVL */}
         <div className="card">
-          <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
-            <Zap className="w-4 h-4" />
-            <span>Active Protocols</span>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 text-text-secondary text-sm">
+              <Zap className="w-4 h-4" />
+              <span>Active Protocols</span>
+            </div>
+            <span className="text-xl font-bold">{safeTvlData.topProtocols.length}+</span>
           </div>
-          <div className="text-2xl font-bold">{safeTvlData.topProtocols.length}+</div>
-          <div className="text-sm text-text-secondary mt-2">Top DeFi protocols</div>
+          
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {(expandedProtocols ? safeTvlData.topProtocols : safeTvlData.topProtocols.slice(0, 5)).map((protocol, index) => (
+              <div key={protocol.name} className="flex items-center justify-between text-sm py-1">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <span className="text-text-secondary w-4">{index + 1}</span>
+                  {protocol.logo && (
+                    <img src={protocol.logo} alt={protocol.name} className="w-4 h-4 rounded-full flex-shrink-0" />
+                  )}
+                  <span className="truncate">{protocol.name}</span>
+                </div>
+                <span className="font-medium text-xs ml-2 flex-shrink-0">
+                  {formatLargeNumber(protocol.tvl)}
+                </span>
+              </div>
+            ))}
+          </div>
+          
+          {safeTvlData.topProtocols.length > 5 && (
+            <button
+              onClick={() => setExpandedProtocols(!expandedProtocols)}
+              className="mt-3 w-full flex items-center justify-center gap-1 text-xs text-accent hover:text-accent/80 transition-colors"
+            >
+              {expandedProtocols ? (
+                <>
+                  <ChevronUp className="w-3 h-3" />
+                  Show top 5
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-3 h-3" />
+                  View all {safeTvlData.topProtocols.length} protocols
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
