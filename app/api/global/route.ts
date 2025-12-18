@@ -14,10 +14,13 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const [globalMetrics, fearGreed, altcoinSeason] = await Promise.all([
-      fetchGlobalMetrics(),
+    // First fetch global metrics to get BTC dominance
+    const globalMetrics = await fetchGlobalMetrics();
+    
+    // Then fetch other indices, passing BTC dominance for fallback calculation
+    const [fearGreed, altcoinSeason] = await Promise.all([
       fetchFearGreedIndex(),
-      fetchAltcoinSeasonIndex(),
+      fetchAltcoinSeasonIndex(globalMetrics.btcDominance),
     ]);
 
     return NextResponse.json({

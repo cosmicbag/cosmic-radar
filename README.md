@@ -1,22 +1,44 @@
-# Flow Radar 🚀
+# Cosmic Radar 🚀
 
 A dark-themed Web3-style crypto dashboard that tracks the top 200 cryptocurrencies by market cap using the CoinMarketCap Pro API. Monitor daily rank movements, market flows, and macro metrics in one comprehensive dashboard.
 
-![Flow Radar Dashboard](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
+![Cosmic Radar Dashboard](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?style=flat-square&logo=typescript)
 ![Prisma](https://img.shields.io/badge/Prisma-5.7-2D3748?style=flat-square&logo=prisma)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=flat-square&logo=tailwind-css)
 
 ## Features ✨
 
+### Core Features
 - **Real-time Market Metrics**: Total market cap, 24h volume, BTC dominance, Fear & Greed Index, and Altcoin Season Index
 - **Top 200 Tracking**: Comprehensive table with sorting, filtering, and search capabilities
 - **Rank Change Analysis**: Visual indicators showing daily rank movements (up/down/new)
 - **Tier Movement Tracking**: Monitor coins entering/leaving Top 10/50/100/200
-- **Gainers & Losers**: Identify the biggest rank movers in the Top 200
+- **Gainers & Losers**: Identify the biggest price movers in the Top 200
 - **Historical Snapshots**: Daily snapshots stored in PostgreSQL for trend analysis
-- **Dark Theme UI**: Modern, Web3-inspired design with responsive layout
+- **Coin Detail View**: Click any coin to see detailed information, stats, and links
+
+### News & Information
+- **Crypto News Page**: Dedicated news feed powered by CryptoPanic API
+- **Filter by Sentiment**: View hot, rising, bullish, bearish, or important news
+- **Real-time Updates**: Stay informed with the latest crypto headlines
+
+### User Features
+- **Google Authentication**: Sign in with Google for a seamless experience
+- **Email/Password Auth**: Traditional signup and login option
+- **User Dashboard**: Protected dashboard with portfolio placeholders
+- **Watchlist (Coming Soon)**: Track your favorite coins
+- **Price Alerts (Coming Soon)**: Get notified on price movements
+
+### Mobile Experience
+- **Responsive Design**: Optimized for all screen sizes
+- **Bottom Navigation**: Kraken-style mobile navigation bar
+- **Touch-Friendly**: Card-based UI designed for mobile interaction
+
+### Technical
+- **Dark Theme UI**: Modern, Web3-inspired design
 - **Vercel-Ready**: Optimized for deployment on Vercel
+- **DeFi Integration**: DEX volume and TVL tracking via DeFi Llama
 
 ## Tech Stack 🛠️
 
@@ -25,7 +47,8 @@ A dark-themed Web3-style crypto dashboard that tracks the top 200 cryptocurrenci
 - **Database**: PostgreSQL with Prisma ORM
 - **Styling**: Tailwind CSS
 - **Table**: TanStack Table (React Table v8)
-- **API**: CoinMarketCap Pro API
+- **API**: CoinMarketCap Pro API, CryptoPanic API, DeFi Llama API
+- **Auth**: NextAuth.js with Google OAuth and Credentials
 - **Deployment**: Vercel-ready
 
 ## Prerequisites 📋
@@ -35,6 +58,8 @@ Before you begin, ensure you have:
 - Node.js 18+ installed
 - PostgreSQL database (local or cloud-hosted like Supabase)
 - CoinMarketCap Pro API key ([Get one here](https://coinmarketcap.com/api/))
+- (Optional) CryptoPanic API key for news ([Get one here](https://cryptopanic.com/developers/api/))
+- (Optional) Google OAuth credentials for Google Sign-In
 
 ## Getting Started 🚀
 
@@ -62,11 +87,22 @@ cp .env.example .env
 Edit `.env` and add your credentials:
 
 ```env
-# CoinMarketCap Pro API Key
+# CoinMarketCap Pro API Key (Required)
 CMC_API_KEY=your_coinmarketcap_api_key_here
 
-# Database URL (Postgres - e.g., Supabase)
+# Database URL (Required - Postgres e.g., Supabase)
 DATABASE_URL=postgresql://user:password@host:5432/database?schema=public
+
+# NextAuth Configuration (Required)
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret_here_generate_with_openssl_rand_base64_32
+
+# CryptoPanic API Key (Optional - for news feed)
+CRYPTOPANIC_API_KEY=your_cryptopanic_api_key_here
+
+# Google OAuth (Optional - for Google Sign In)
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 
 # Optional: Base URL for API calls (defaults to http://localhost:3000)
 NEXT_PUBLIC_BASE_URL=http://localhost:3000

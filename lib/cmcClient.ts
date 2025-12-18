@@ -179,12 +179,37 @@ export async function fetchFearGreedIndex(): Promise<FearGreedIndex> {
 export interface AltcoinSeasonIndex {
   value: number;
   label: string;
+  isEstimate?: boolean; // Flag to indicate if this is calculated vs from API
+}
+
+/**
+ * Calculate Altcoin Season Index based on BTC dominance
+ * This is a fallback calculation when the CMC API endpoint is unavailable
+ * Formula: When BTC dominance is low, altcoins tend to outperform
+ */
+function calculateAltcoinSeasonFromDominance(btcDominance: number): AltcoinSeasonIndex {
+  // Inverse relationship: lower BTC dominance = higher altcoin season score
+  // BTC dominance typically ranges from 35% to 70%
+  // Map this to 0-100 altcoin season index (inverted)
+  const minDom = 35;
+  const maxDom = 70;
+  const clampedDom = Math.max(minDom, Math.min(maxDom, btcDominance));
+  const value = Math.round(100 - ((clampedDom - minDom) / (maxDom - minDom)) * 100);
+  
+  let label = 'Neutral';
+  if (value >= 75) label = 'Altcoin Season';
+  else if (value >= 55) label = 'Alt Leaning';
+  else if (value <= 25) label = 'Bitcoin Season';
+  else if (value <= 45) label = 'BTC Leaning';
+  
+  return { value, label, isEstimate: true };
 }
 
 /**
  * Fetch Altcoin Season Index
+ * Falls back to BTC dominance-based calculation if API unavailable
  */
-export async function fetchAltcoinSeasonIndex(): Promise<AltcoinSeasonIndex> {
+export async function fetchAltcoinSeasonIndex(btcDominance?: number): Promise<AltcoinSeasonIndex> {
   try {
     const url = new URL(`${CMC_BASE_URL}/v3/cryptocurrency/altcoin-season-index`);
 
@@ -194,6 +219,11 @@ export async function fetchAltcoinSeasonIndex(): Promise<AltcoinSeasonIndex> {
     });
 
     if (!response.ok) {
+      // API endpoint not available, use fallback calculation
+      if (btcDominance !== undefined) {
+        console.warn('Altcoin Season API unavailable, using BTC dominance calculation');
+        return calculateAltcoinSeasonFromDominance(btcDominance);
+      }
       throw new Error(`CMC API error: ${response.status} ${response.statusText}`);
     }
 
@@ -201,18 +231,28 @@ export async function fetchAltcoinSeasonIndex(): Promise<AltcoinSeasonIndex> {
     const indexValue = data?.data?.value ?? 50;
 
     // Determine label based on value
-    const label = indexValue >= 75 ? 'Altcoin Season' : 'Bitcoin Season';
+    let label = 'Neutral';
+    if (indexValue >= 75) label = 'Altcoin Season';
+    else if (indexValue >= 55) label = 'Alt Leaning';
+    else if (indexValue <= 25) label = 'Bitcoin Season';
+    else if (indexValue <= 45) label = 'BTC Leaning';
 
     return {
       value: indexValue,
       label,
+      isEstimate: false,
     };
   } catch (error) {
     console.error('Error fetching Altcoin Season Index:', error);
-    // Return fallback data if API fails
+    // Use BTC dominance fallback if available
+    if (btcDominance !== undefined) {
+      return calculateAltcoinSeasonFromDominance(btcDominance);
+    }
+    // Return neutral fallback
     return {
       value: 50,
       label: 'Neutral',
+      isEstimate: true,
     };
   }
 }

@@ -196,6 +196,7 @@ function computeTierMovement(
 /**
  * Build a fallback response from live CMC data when no snapshot exists
  * This ensures Top 200 table always has data to display
+ * Uses 24h price change as a proxy for gainers/losers when no historical rank data exists
  */
 export function buildLiveFallbackResponse(
   liveListings: any[],
@@ -214,19 +215,51 @@ export function buildLiveFallbackResponse(
     rankChange: null, // No historical data
   }));
 
+  // When no historical data exists, use 24h price change to determine gainers/losers
+  // This provides useful data even without snapshots
+  const sortedByChange = [...top200Today].filter(c => c.todayChange24h !== null);
+  
+  const gainers = sortedByChange
+    .filter(c => (c.todayChange24h ?? 0) > 0)
+    .sort((a, b) => (b.todayChange24h ?? 0) - (a.todayChange24h ?? 0));
+  
+  const losers = sortedByChange
+    .filter(c => (c.todayChange24h ?? 0) < 0)
+    .sort((a, b) => (a.todayChange24h ?? 0) - (b.todayChange24h ?? 0));
+
+  // Build tier movements based on 24h change within each tier
+  const buildTierFromChange = (minRank: number, maxRank: number): TierMovement => {
+    const tierCoins = top200Today.filter(
+      c => c.todayRank !== null && c.todayRank >= minRank && c.todayRank <= maxRank
+    );
+    const tierGainers = tierCoins
+      .filter(c => (c.todayChange24h ?? 0) > 0)
+      .sort((a, b) => (b.todayChange24h ?? 0) - (a.todayChange24h ?? 0));
+    const tierLosers = tierCoins
+      .filter(c => (c.todayChange24h ?? 0) < 0)
+      .sort((a, b) => (a.todayChange24h ?? 0) - (b.todayChange24h ?? 0));
+    
+    return {
+      entered: [],
+      left: [],
+      gainers: tierGainers,
+      losers: tierLosers,
+    };
+  };
+
   return {
     date: targetDate.toISOString().split('T')[0],
     previousDate: null,
     top200Today,
     newTop200: [],
     droppedTop200: [],
-    gainers: [],
-    losers: [],
+    gainers,
+    losers,
     tiers: {
-      t10: emptyTierMovement,
-      t50: emptyTierMovement,
-      t100: emptyTierMovement,
-      t200: emptyTierMovement,
+      t10: buildTierFromChange(1, 10),
+      t50: buildTierFromChange(1, 50),
+      t100: buildTierFromChange(1, 100),
+      t200: buildTierFromChange(1, 200),
     },
   };
 }

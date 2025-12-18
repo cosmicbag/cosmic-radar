@@ -84,20 +84,16 @@ a {
   color: var(--text-secondary);
 }
 
-/* News ticker animation */
-@keyframes scroll-news {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+/* Safe area for mobile devices with notches */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-.animate-scroll-news {
-  animation: scroll-news 18s linear infinite;
+/* Line clamp utility */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.pause-animation:hover {
-  animation-play-state: paused;
-}

@@ -13,25 +13,26 @@ import { fetchTop200Listings } from '@/lib/cmcClient';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const dateParam = searchParams.get('date');
+  const { searchParams } = new URL(request.url);
+  const dateParam = searchParams.get('date');
 
-    // Determine target date
-    let targetDate: Date;
-    if (!dateParam || dateParam === 'today') {
-      targetDate = getTodayUTC();
-    } else {
-      try {
-        targetDate = parseDateString(dateParam);
-      } catch {
-        return NextResponse.json(
-          { error: 'Invalid date format. Use YYYY-MM-DD' },
-          { status: 400 }
-        );
-      }
+  // Determine target date
+  let targetDate: Date;
+  if (!dateParam || dateParam === 'today') {
+    targetDate = getTodayUTC();
+  } else {
+    try {
+      targetDate = parseDateString(dateParam);
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid date format. Use YYYY-MM-DD' },
+        { status: 400 }
+      );
     }
+  }
 
+  // Try database first, fall back to live CMC data on any error
+  try {
     // Find snapshot for target date
     const todaySnapshot = await prisma.snapshot.findUnique({
       where: { date: targetDate },
@@ -41,20 +42,9 @@ export async function GET(request: Request) {
     // FALLBACK: If no snapshot exists, fetch live data from CMC
     if (!todaySnapshot) {
       console.log('No snapshot found, fetching live CMC data as fallback');
-      try {
-        const liveListings = await fetchTop200Listings();
-        const fallbackResponse = buildLiveFallbackResponse(liveListings, targetDate);
-        return NextResponse.json(fallbackResponse);
-      } catch (liveError) {
-        console.error('Failed to fetch live CMC data:', liveError);
-        return NextResponse.json(
-          {
-            error: `No snapshot found for ${formatDateString(targetDate)}`,
-            suggestion: 'Call POST /api/snapshots/today to create a snapshot',
-          },
-          { status: 404 }
-        );
-      }
+      const liveListings = await fetchTop200Listings();
+      const fallbackResponse = buildLiveFallbackResponse(liveListings, targetDate);
+      return NextResponse.json(fallbackResponse);
     }
 
     // Find previous snapshot (yesterday or closest before)
@@ -81,13 +71,22 @@ export async function GET(request: Request) {
 
     // Build comparison response
     const compareResponse = buildCompareResponse(todaySnapshot, yesterdaySnapshot);
-
     return NextResponse.json(compareResponse);
-  } catch (error) {
-    console.error('Error in /api/snapshots/compare:', error);
-    return NextResponse.json(
-      { error: 'Failed to compare snapshots' },
-      { status: 500 }
-    );
+
+  } catch (dbError) {
+    // Database error - fall back to live CMC data
+    console.warn('Database error, falling back to live CMC data:', dbError);
+    
+    try {
+      const liveListings = await fetchTop200Listings();
+      const fallbackResponse = buildLiveFallbackResponse(liveListings, targetDate);
+      return NextResponse.json(fallbackResponse);
+    } catch (cmcError) {
+      console.error('Both database and CMC API failed:', cmcError);
+      return NextResponse.json(
+        { error: 'Failed to fetch data from database and CMC API' },
+        { status: 500 }
+      );
+    }
   }
 }

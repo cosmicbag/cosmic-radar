@@ -12,6 +12,7 @@ import {
 } from '@tanstack/react-table';
 import RankChangeCell from './RankChangeCell';
 import { CoinComparison } from '@/lib/compare';
+import CoinDetailsModal from '@/components/search/CoinDetailsModal';
 
 interface TopCoinsTableProps {
   data: CoinComparison[];
@@ -32,6 +33,7 @@ export default function TopCoinsTable({ data }: TopCoinsTableProps) {
   const [globalFilter, setGlobalFilter] = useState('');
   const [minVolume, setMinVolume] = useState<number>(0);
   const [minMarketCap, setMinMarketCap] = useState<number>(0);
+  const [selectedCoinId, setSelectedCoinId] = useState<number | null>(null);
 
   const columns = useMemo(
     () => [
@@ -224,7 +226,8 @@ export default function TopCoinsTable({ data }: TopCoinsTableProps) {
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="border-b border-border hover:bg-background transition-colors"
+                onClick={() => setSelectedCoinId(row.original.cmcId)}
+                className="border-b border-border hover:bg-background transition-colors cursor-pointer"
               >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="px-4 py-3">
@@ -240,6 +243,14 @@ export default function TopCoinsTable({ data }: TopCoinsTableProps) {
       <div className="mt-4 text-sm text-text-secondary">
         Showing {table.getRowModel().rows.length} of {data.length} coins
       </div>
+
+      {/* Coin Details Modal */}
+      {selectedCoinId && (
+        <CoinDetailsModal
+          coinId={selectedCoinId}
+          onClose={() => setSelectedCoinId(null)}
+        />
+      )}
     </div>
   );
 }

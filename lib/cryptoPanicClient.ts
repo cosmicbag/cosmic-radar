@@ -33,23 +33,28 @@ export interface CryptoPanicResponse {
   results: NewsItem[];
 }
 
+export type NewsFilter = 'rising' | 'hot' | 'bullish' | 'bearish' | 'important' | 'saved' | 'lol';
+
 /**
  * Fetch latest crypto news from CryptoPanic
  * @param limit Number of news items to fetch (default: 20)
+ * @param filter Filter type (default: 'hot')
  */
-export async function fetchCryptoNews(limit: number = 20): Promise<NewsItem[]> {
+export async function fetchCryptoNews(
+  limit: number = 20,
+  filter: NewsFilter = 'hot'
+): Promise<NewsItem[]> {
   try {
     const apiKey = process.env.CRYPTOPANIC_API_KEY;
     
     // If no API key, return placeholder news
     if (!apiKey) {
       console.warn('CRYPTOPANIC_API_KEY not set. Using placeholder news.');
-      // Return placeholder news items
       return getPlaceholderNews();
     }
 
     // With API key - full access
-    const url = `${CRYPTOPANIC_API_URL}/posts/?auth_token=${apiKey}&kind=news&filter=hot&public=true`;
+    const url = `${CRYPTOPANIC_API_URL}/posts/?auth_token=${apiKey}&kind=news&filter=${filter}&public=true`;
     
     const response = await fetch(url, {
       next: { revalidate: 300 }, // Cache for 5 minutes
@@ -63,7 +68,7 @@ export async function fetchCryptoNews(limit: number = 20): Promise<NewsItem[]> {
     return data.results.slice(0, limit);
   } catch (error) {
     console.error('Error fetching crypto news:', error);
-    return [];
+    return getPlaceholderNews();
   }
 }
 

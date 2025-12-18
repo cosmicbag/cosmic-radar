@@ -9,7 +9,7 @@ interface MetricsRowProps {
   volume24h: number;
   btcDominance: number;
   fearGreed: { value: number; label: string };
-  altcoinSeason: { value: number; label: string };
+  altcoinSeason: { value: number; label: string; isEstimate?: boolean };
   marketCapChange24h?: number;
   volumeChange24h?: number;
   dexVolume24h?: number;
@@ -159,6 +159,11 @@ export default function MetricsRow({
         <div className="flex items-center gap-2 text-text-secondary text-sm mb-2">
           <Coins className="w-4 h-4 text-purple-500" />
           <span>Altcoin Season</span>
+          {altcoinSeason.isEstimate && (
+            <span className="text-xs px-1.5 py-0.5 bg-warning/10 text-warning rounded" title="Estimated from BTC dominance">
+              Est.
+            </span>
+          )}
         </div>
         {renderGauge(altcoinSeason.value, 'text-purple-500')}
         <div className="text-sm text-text-secondary text-center">{altcoinSeason.label}</div>

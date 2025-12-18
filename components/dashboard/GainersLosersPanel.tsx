@@ -7,24 +7,45 @@ import RankChangeCell from './RankChangeCell';
 interface GainersLosersPanelProps {
   gainers: CoinComparison[];
   losers: CoinComparison[];
+  showPriceChange?: boolean; // When true, shows 24h price change instead of rank change
 }
 
 export default function GainersLosersPanel({
   gainers,
   losers,
+  showPriceChange = false,
 }: GainersLosersPanelProps) {
   const [showAllGainers, setShowAllGainers] = useState(false);
   const [showAllLosers, setShowAllLosers] = useState(false);
 
   const displayLimit = 20;
+  
+  // Determine if we're showing rank changes or price changes
+  // If first gainer has no rankChange, we're showing price-based data
+  const isRankBased = gainers.length > 0 && gainers[0].rankChange !== null;
+
+  // Empty state
+  if (gainers.length === 0 && losers.length === 0) {
+    return (
+      <div className="card">
+        <h3 className="text-xl font-semibold mb-4">Gainers & Losers</h3>
+        <p className="text-text-secondary">No data available. Please check your API connection.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Gainers */}
       <div className="card">
         <h3 className="text-xl font-semibold mb-4 text-positive">
-          Rank Gainers (Top 200)
+          {isRankBased ? 'Rank Gainers' : '24h Price Gainers'} (Top 200)
         </h3>
+        {!isRankBased && (
+          <p className="text-xs text-text-secondary mb-3">
+            Based on 24h price change • Rank data available after 2+ days
+          </p>
+        )}
         <div className="space-y-2">
           {(showAllGainers ? gainers : gainers.slice(0, displayLimit)).map(
             (coin) => (
@@ -44,13 +65,15 @@ export default function GainersLosersPanel({
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <RankChangeCell
-                    rankChange={coin.rankChange}
-                    yesterdayRank={coin.yesterdayRank}
-                  />
+                  {isRankBased && (
+                    <RankChangeCell
+                      rankChange={coin.rankChange}
+                      yesterdayRank={coin.yesterdayRank}
+                    />
+                  )}
                   {coin.todayChange24h !== null && (
                     <span
-                      className={`text-sm ${
+                      className={`text-sm font-medium ${
                         coin.todayChange24h >= 0
                           ? 'text-positive'
                           : 'text-negative'
@@ -80,8 +103,13 @@ export default function GainersLosersPanel({
       {/* Losers */}
       <div className="card">
         <h3 className="text-xl font-semibold mb-4 text-negative">
-          Rank Losers (Top 200)
+          {isRankBased ? 'Rank Losers' : '24h Price Losers'} (Top 200)
         </h3>
+        {!isRankBased && (
+          <p className="text-xs text-text-secondary mb-3">
+            Based on 24h price change • Rank data available after 2+ days
+          </p>
+        )}
         <div className="space-y-2">
           {(showAllLosers ? losers : losers.slice(0, displayLimit)).map(
             (coin) => (
@@ -101,13 +129,15 @@ export default function GainersLosersPanel({
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <RankChangeCell
-                    rankChange={coin.rankChange}
-                    yesterdayRank={coin.yesterdayRank}
-                  />
+                  {isRankBased && (
+                    <RankChangeCell
+                      rankChange={coin.rankChange}
+                      yesterdayRank={coin.yesterdayRank}
+                    />
+                  )}
                   {coin.todayChange24h !== null && (
                     <span
-                      className={`text-sm ${
+                      className={`text-sm font-medium ${
                         coin.todayChange24h >= 0
                           ? 'text-positive'
                           : 'text-negative'

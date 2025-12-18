@@ -79,6 +79,7 @@ model User {
   sessions      Session[]
   watchlists    Watchlist[]
   alerts        Alert[]
+  holdings      Holding[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -120,4 +121,22 @@ model Alert {
   @@index([userId])
   @@index([coinId])
   @@index([isActive])
+}
+
+// Portfolio Holdings (Manual Entry)
+model Holding {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coinId      Int      // CMC coin ID
+  symbol      String
+  name        String
+  quantity    Float
+  costBasis   Float?   // Optional: average purchase price
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([coinId])
 }
