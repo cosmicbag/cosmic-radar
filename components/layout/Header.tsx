@@ -88,7 +88,7 @@ export default function Header() {
                 style={{ backgroundImage: 'url(/mascot.png)' }}
                 aria-label="Cosmic Radar Mascot"
               />
-              <h1 className="text-lg sm:text-2xl font-bold" style={{ color: 'green' }}>
+              <h1 className="text-lg sm:text-2xl font-bold text-green-500 !text-green-500" style={{ color: 'green !important' }}>
                 Cosmic Radar
               </h1>
             </Link>
