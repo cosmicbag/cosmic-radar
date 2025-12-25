@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import { fetchDexOverview, fetchProtocolsTVL } from '@/lib/defiLlamaClient';
+import { withCache } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,12 +13,13 @@ export async function GET() {
   try {
     console.log('Fetching DeFi data from DeFi Llama...');
     
+    // Cache DeFi data for 10 minutes
     const [dexOverview, protocols] = await Promise.all([
-      fetchDexOverview().catch(err => {
+      withCache('defi-dex-overview', () => fetchDexOverview(), 600).catch(err => {
         console.error('DEX overview fetch failed:', err);
         return { protocols: [], totalVolume24h: 0, totalVolume7d: 0, change_1d: 0, change_7d: 0 };
       }),
-      fetchProtocolsTVL().catch(err => {
+      withCache('defi-protocols-tvl', () => fetchProtocolsTVL(), 600).catch(err => {
         console.error('Protocols TVL fetch failed:', err);
         return [];
       }),

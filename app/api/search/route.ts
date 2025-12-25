@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { withCache } from '@/lib/cache';
 
 const CMC_API_KEY = process.env.CMC_API_KEY;
 const CMC_BASE_URL = 'https://pro-api.coinmarketcap.com/v1';
@@ -25,23 +26,28 @@ export async function GET(request: Request) {
       );
     }
 
-    // Search using CMC's cryptocurrency/map endpoint which includes all coins
-    const response = await fetch(
-      `${CMC_BASE_URL}/cryptocurrency/map?limit=5000`,
-      {
-        headers: {
-          'X-CMC_PRO_API_KEY': CMC_API_KEY,
-          'Accept': 'application/json',
-        },
-        next: { revalidate: 3600 }, // Cache for 1 hour
-      }
+    // Cache the full coin map for 1 hour to reduce API calls
+    const data = await withCache(
+      'coin-map-full',
+      async () => {
+        const response = await fetch(
+          `${CMC_BASE_URL}/cryptocurrency/map?limit=5000`,
+          {
+            headers: {
+              'X-CMC_PRO_API_KEY': CMC_API_KEY,
+              'Accept': 'application/json',
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`CMC API error: ${response.status}`);
+        }
+
+        return response.json();
+      },
+      3600
     );
-
-    if (!response.ok) {
-      throw new Error(`CMC API error: ${response.status}`);
-    }
-
-    const data = await response.json();
     
     // Filter results based on search query
     const searchLower = query.toLowerCase();

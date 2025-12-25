@@ -9,13 +9,18 @@ import {
   fetchFearGreedIndex,
   fetchAltcoinSeasonIndex,
 } from '@/lib/cmcClient';
+import { withCache } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // First fetch global metrics to get BTC dominance
-    const globalMetrics = await fetchGlobalMetrics();
+    // Cache global metrics for 5 minutes to reduce API calls
+    const globalMetrics = await withCache(
+      'global-metrics',
+      () => fetchGlobalMetrics(),
+      300
+    );
     
     // Then fetch other indices, passing BTC dominance for fallback calculation
     const [fearGreed, altcoinSeason] = await Promise.all([
