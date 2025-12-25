@@ -2,10 +2,12 @@
  * POST /api/db/reset-snapshots
  * Drops and recreates snapshot tables
  * WARNING: This will delete all snapshot data
+ * PROTECTED: Requires authentication
  */
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAuth, unauthorizedResponse } from '@/lib/auth-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,9 +74,19 @@ async function resetTables() {
 }
 
 export async function POST() {
-  return resetTables();
+  try {
+    await requireAuth();
+    return resetTables();
+  } catch (error) {
+    return unauthorizedResponse('Authentication required to reset database');
+  }
 }
 
 export async function GET() {
-  return resetTables();
+  try {
+    await requireAuth();
+    return resetTables();
+  } catch (error) {
+    return unauthorizedResponse('Authentication required to reset database');
+  }
 }

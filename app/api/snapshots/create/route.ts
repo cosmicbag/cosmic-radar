@@ -1,16 +1,21 @@
 /**
  * POST /api/snapshots/create?date=YYYY-MM-DD
  * Creates a snapshot for a specific date
+ * PROTECTED: Requires authentication
  */
 
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { fetchTop200Listings } from '@/lib/cmcClient';
+import { requireAuth, unauthorizedResponse } from '@/lib/auth-helpers';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
+    // Require authentication
+    await requireAuth();
+    
     const { searchParams } = new URL(request.url);
     const dateStr = searchParams.get('date');
 
@@ -81,6 +86,12 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Error creating snapshot:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    // Check if it's an auth error
+    if (errorMessage === 'Unauthorized') {
+      return unauthorizedResponse('Authentication required to create snapshots');
+    }
+    
     return NextResponse.json(
       { 
         error: 'Failed to create snapshot',
