@@ -88,7 +88,7 @@ export default function Header() {
                 style={{ backgroundImage: 'url(/mascot.png)' }}
                 aria-label="Cosmic Radar Mascot"
               />
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
                 Cosmic Radar
               </h1>
             </Link>
@@ -121,9 +121,9 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* Center: Search - hidden on mobile, shown on tablet+ */}
-          <div className="hidden sm:flex flex-1 max-w-xs md:max-w-md mx-2 md:mx-8" ref={searchRef}>
-            <form onSubmit={handleSearch} className="w-full relative">
+          {/* Center: Search and Currency - hidden on mobile, shown on tablet+ */}
+          <div className="hidden sm:flex flex-1 max-w-xl md:max-w-2xl mx-2 md:mx-8 items-center gap-2" ref={searchRef}>
+            <form onSubmit={handleSearch} className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-text-secondary" />
               <input
                 type="text"
@@ -161,6 +161,9 @@ export default function Header() {
                 </div>
               )}
             </form>
+            <div className="px-3 py-1.5 bg-background border border-border rounded-lg text-sm font-medium whitespace-nowrap">
+              USD
+            </div>
           </div>
 
           {/* Right: Search Icon (mobile) & Currency & User */}
@@ -173,10 +176,6 @@ export default function Header() {
             >
               <Search className="w-5 h-5" />
             </button>
-            
-            <div className="hidden sm:block px-3 py-1.5 bg-background border border-border rounded-lg text-sm font-medium">
-              USD
-            </div>
             
             {status === 'loading' ? (
               <div className="w-8 h-8 rounded-full bg-background animate-pulse" />
@@ -241,7 +240,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={() => signIn()}
-                className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium"
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium"
               >
                 Sign In
               </button>
