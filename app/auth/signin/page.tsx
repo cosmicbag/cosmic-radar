@@ -129,7 +129,7 @@ function SignInForm() {
               aria-label="Cosmic Radar Mascot"
             />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-accent to-purple-500 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent mb-2">
             {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
           </h1>
           <p className="text-text-secondary">
@@ -149,7 +149,7 @@ function SignInForm() {
             }}
             className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
               mode === 'signin'
-                ? 'bg-accent text-white'
+                ? 'bg-green-600 text-white hover:bg-green-700'
                 : 'bg-background text-text-secondary hover:text-text-primary'
             }`}
           >
@@ -162,7 +162,7 @@ function SignInForm() {
             }}
             className={`flex-1 py-2 rounded-lg font-medium transition-colors ${
               mode === 'register'
-                ? 'bg-accent text-white'
+                ? 'bg-green-600 text-white hover:bg-green-700'
                 : 'bg-background text-text-secondary hover:text-text-primary'
             }`}
           >
@@ -289,7 +289,7 @@ function SignInForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-accent text-white rounded-lg hover:bg-accent/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Processing...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
             </button>
